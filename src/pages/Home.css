@@ -1,0 +1,337 @@
+/* GLOBAL */
+
+ion-grid {
+  height: 100%;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  /* min-width: 100%; */
+  /* width: 1200px; */
+}
+
+ion-row {
+  min-width: fit-content;
+  flex-wrap: nowrap;
+  text-align: center;
+  padding: 0;
+}
+
+.sticky-div {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  background: var(--ion-background-color);
+  z-index: 10;
+}
+
+.pointer:hover {
+  cursor: pointer;
+}
+
+.align-left {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.align-center {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.align-right {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.border-right-green {
+  border-right: 3px solid #3E8B21;
+}
+
+ion-text.round-label {
+  padding: 5px 10px;
+  font-size: 0.9em;;
+}
+
+ion-text.round-value {
+  padding: 5px 10px;
+  border: 2px solid #FFFFFF50;
+  border-radius: 10px;
+  font-size: 1.2em;
+}
+
+/* HEADER */
+
+ion-img.header-logo {
+  height: 1.8em;
+}
+
+.main-toolbar {
+  padding: 0 10px;
+}
+
+.main-toolbar button {
+  padding: 50px !important;
+  background-color: transparent !important;
+}
+
+.main-toolbar ion-grid {
+  overflow: hidden;
+}
+
+/* TOP ROW, PLAYER NAME & SCORE */
+
+ion-row.top-row {
+  min-height: 80px;
+  max-height: 80px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+ion-row.top-row ion-col.player-header {
+  background: #347a1894;
+}
+
+ion-row.top-row ion-col.player-header * {
+  --ion-background-color: transparent;
+}
+
+ion-col.active {
+  background-color: #849feeb7 !important;
+}
+
+ion-item.player-name ion-title {
+  font-weight: bold;
+  font-size: large;
+  color: #ffffffc0;
+  padding: 0;
+  overflow: hidden;
+  margin: 0 10px;
+}
+
+ion-icon.dealer-icon {
+  margin: 10px -15px 10px 0;
+  cursor: pointer;
+}
+
+ion-icon.swap {
+  position: absolute;
+  right: -10px;
+  top: 13px;
+  overflow: visible;
+  z-index: 99;
+}
+
+ion-col.player-header ion-item {
+  --min-height: 35px;
+}
+
+ion-item.player-score {
+  padding: 0 25px;
+}
+
+ion-label.total {
+  color: var(--ion-color-light) !important;
+  font-size: 1.4em !important;
+}
+
+ion-note.possible {
+  padding: 0;
+  margin: auto;
+  color: #ffffff5f !important;
+  font-size: 0.9em !important;
+}
+
+/* MAIN COLUMNS */
+
+ion-col.parent-column {
+  padding: 0;
+  background: #39821f;
+}
+
+
+/* FIRST COLUMN */
+
+ion-col.first-column {
+  min-width: 80px;
+  max-width: 80px;
+  background: var(--ion-background-color);
+}
+
+ion-col.top-right-column ion-button ion-icon {
+  padding: 5px;
+  font-size: 2.8em;
+}
+
+ion-col.top-right-column ion-button {
+  --box-shadow: none;
+}
+
+button.round-button {
+  background-color: var(--ion-color-light);
+  color: #2e6918;
+  width: 55px;
+  height: fit-content;
+  padding: 8px 5px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* PLAYER COLUMNS */
+
+ion-col.player-column {
+  max-width: 12em;
+  min-width: 12em;
+}
+
+ion-row.round-row {
+  min-height: 50px;
+}
+
+ion-row.even {
+ background: #FFFFFF08;
+}
+
+ion-select.book-button {
+  margin: auto;
+  color: var(--ion-color-light);
+  max-width: fit-content;
+}
+
+ion-select.book-button::part(placeholder) {
+  font-size: x-small !important;
+}
+
+ion-select.book-button::part(icon) {
+  display: none;
+}
+
+ion-select.bid::part(text) {
+  font-size: 1.1em;
+}
+
+ion-select.got::part(text) {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+/* ion-col:has(> ion-select.bid.rainbow) {
+  border-top: 3px solid #FF00FF;
+  border-right: 3px solid #00FF00;
+  border-bottom: 3px solid #0000FF;
+  border-left: 3px solid #FFFF00;
+  padding: 0;
+  max-height: 50px;
+} */
+
+ion-select.bid.rainbow::part(container) {
+  border-top: 3px solid #FF00FF;
+  border-right: 3px solid #00FF00;
+  border-bottom: 3px solid #0000FF;
+  border-left: 3px solid #FFFF00;
+  padding: 5px;
+  max-height: 50px;
+}
+
+ion-col.filler {
+  background-color: var(--ion-background-color);
+}
+
+/* MODALS & POPUPS */
+
+@media (min-width: 700px) and (min-height: 500px) {
+  /* Apply styles only on desktop (adjust breakpoint as needed) */
+  ion-modal {
+    --width: 600px; /* Set desired width */
+    --min-height: 400px;
+    --max-height: 60vh; /* Set desired height */
+    --border-radius: 8px; /* Optional: Add rounded corners */
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* Optional: Add shadow */
+  }
+
+  /* Center the modal content */
+  ion-modal .modal-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+ion-modal {
+  --ion-background-color: #FFFFFF;
+}
+
+.popup-prompt .alert-wrapper,
+.popup-prompt .action-sheet-group,
+ion-alert .alert-wrapper {
+  background: #e7e7e7 !important;
+  border-radius: 10px;
+}
+
+ion-popover {
+  size: cover;
+}
+
+.popup-prompt ion-select-popover * {
+  --ion-background-color: var(--ion-color-light);
+  color: #2b6017;
+}
+
+ion-popover::part(content) {
+  width: fit-content;
+}
+
+.popup-prompt ion-item {
+  font-size: large;
+}
+
+.popup-prompt ion-toolbar {
+  padding: 0 10px;
+}
+
+.popup-prompt .action-sheet-group {
+  min-width: 200px;
+  max-width: 50%;
+  margin: auto;
+}
+
+.popup-prompt .action-sheet-group-cancel {
+  display: none;
+}
+
+.popup-prompt .action-sheet-group button {
+  margin: auto;
+  width: fit-content;
+}
+
+.popup-prompt input.alert-input {
+  border: 1px solid #000000;
+  background: #d9d9d9;
+  padding: 10px;
+  font-size: 1.2em;
+  border-radius: 5px;
+}
+
+.popup-prompt .alert-button-group {
+  display: flex;
+  flex-direction: row;
+}
+
+.popup-prompt .alert-button-role-delete {
+  color: #aa0000;
+}
+
+/* MAIN MENU */
+
+ion-menu ion-list {
+  background: transparent !important;
+}
