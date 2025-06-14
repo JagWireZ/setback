@@ -67,6 +67,10 @@ ion-text.round-value {
   font-size: 1.2em;
 }
 
+.warning-color {
+  color: var(--ion-color-warning);
+}
+
 /* HEADER */
 
 ion-img.header-logo {
@@ -131,7 +135,7 @@ ion-icon.swap {
 }
 
 ion-col.player-header ion-item {
-  --min-height: 35px;
+  --min-height: 25px;
 }
 
 ion-item.player-score {
@@ -327,7 +331,15 @@ ion-popover::part(content) {
 }
 
 .popup-prompt .alert-button-role-delete {
-  color: #aa0000;
+  color: var(--ion-color-danger);
+}
+
+.popup-prompt .alert-button-role-move {
+  color: #888888;
+}
+
+.popup-prompt .alert-button-role-cancel {
+  color: #888888;
 }
 
 /* MAIN MENU */

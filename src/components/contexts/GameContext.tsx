@@ -43,7 +43,10 @@ const GameProvider = ({ children }: GameProviderProps) => {
       .create()
       .then(() => storage.get('game'))
       .then((data: Game) => {
-        dispatch({ type: 'EDIT_GAME', payload: { game: data } });
+        console.log("GAME" + data)
+        if ( data !== null ) {
+          dispatch({ type: 'EDIT_GAME', payload: { game: data } });
+        }
       })
       .catch((err) => console.error('Failed to load data: ', err))
       .finally(() => setLoading(false));

@@ -93,14 +93,9 @@ const PlayerName: React.FC<PlayerName> = ({ playerId }) => {
         ]}
         buttons={[
           {
-            text: 'Move',
-            role: 'move',
-            handler: handleMoveButton,
-          },
-          {
-            text: 'Delete',
-            role: 'delete',
-            handler: handleDeleteButton,
+            text: 'OK',
+            role: 'submit',
+            handler: handleEditSubmit,
           },
           {
             text: 'Cancel',
@@ -108,9 +103,15 @@ const PlayerName: React.FC<PlayerName> = ({ playerId }) => {
             handler: handleEditCancel,
           },
           {
-            text: 'OK',
-            role: 'submit',
-            handler: handleEditSubmit,
+            text: 'Delete',
+            role: 'delete',
+            cssClass: 'warning-color',
+            handler: handleDeleteButton,
+          },
+          {
+            text: 'Move',
+            role: 'move',
+            handler: handleMoveButton,
           },
         ]}
         onDidDismiss={() => {

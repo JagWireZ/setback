@@ -26,7 +26,7 @@ const TopRow: React.FC = () => {
   return (
     <IonRow className="top-row ion-justify-content-start">
       <IonCol className="first-column logo-top-row">
-        <IonImg src="assets/images/sblogo.png" />
+        <IonImg src="assets/sblogo.png" />
       </IonCol>
       {columns}
       <IonCol className="top-right-column align-left">
