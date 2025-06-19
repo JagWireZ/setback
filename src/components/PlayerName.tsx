@@ -1,64 +1,51 @@
-import { IonAlert, IonItem, IonTitle } from '@ionic/react';
+import { IonActionSheet, IonAlert, IonItem, IonTitle } from '@ionic/react';
 import { addIcons } from 'ionicons';
 
-import React, { useRef, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 
-import MovePlayersModal from './MovePlayersModal';
 import DealerIcon from './DealerIcon';
 import { Player } from '../utils/game';
-import { GameContextType, useGameContext } from './contexts/GameContext';
-import { idCard, idCardOutline } from 'ionicons/icons';
+import { useStore } from '../utils/state';
+import { idCard, idCardOutline, personCircleOutline } from 'ionicons/icons';
 
-addIcons({ idCard });
-addIcons({ idCardOutline });
+addIcons({
+  idCard,
+  idCardOutline,
+  personCircleOutline
+});
+
 
 interface PlayerName {
   playerId: string;
+  isMovePlayersOpen: boolean;
+  setIsMovePlayersOpen: (value: boolean) => void;
 }
 
-const PlayerName: React.FC<PlayerName> = ({ playerId }) => {
-  const { state, deletePlayer, editPlayer } =
-    useGameContext() as GameContextType;
+const PlayerName: React.FC<PlayerName> = ({
+  playerId,
+  setIsMovePlayersOpen,
+}) => {
+  const { players } = useStore((state) => state.game);
+  const { activeRound, deletePlayer, editPlayer } = useStore((state) => state);
+  const [version, setVersion] = useState(0);
+
   const [player, setPlayer] = useState<Player>(
-    state.players.filter((item) => item.id === playerId)[0]
+    players.filter((item) => item.id === playerId)[0]
   );
-  const [trigger, setTrigger] = useState(0); // Trigger to re-render if canceled
-  const [isEditPlayerOpen, setIsEditPlayerOpen] = useState(false);
-  const [isDeletePlayerOpen, setIsDeletePlayerOpen] = useState(false);
-  const [isMovePlayersModalOpen, setIsMovePlayersModalOpen] = useState(false);
+
+  useEffect(() => {
+    setPlayer(players.filter((item) => item.id === playerId)[0]);
+  }, [players, playerId]);
 
   const alertRef = useRef<HTMLIonAlertElement>(null);
 
   const handleEditSubmit = (data: { playerName: string }) => {
-    console.log(data);
     const name = data?.playerName || null;
     if (name) {
-      console.log('Submitted name:', name);
-      editPlayer({ ...player, name: name });
-      setPlayer({ ...player, name: name });
-    } else {
-      console.log('No name entered');
+      const newPlayer: Player = player as Player;
+      newPlayer.name = name;
+      editPlayer(newPlayer);
     }
-    setIsEditPlayerOpen(false);
-  };
-
-  const handleEditCancel = () => {
-    setIsEditPlayerOpen(false);
-    setTrigger((trigger) => trigger + 1);
-  };
-
-  const handleDeleteButton = () => {
-    setIsEditPlayerOpen(false);
-    setIsDeletePlayerOpen(true);
-  };
-
-  const handleDeletePlayer = () => {
-    deletePlayer(player.id);
-    setIsDeletePlayerOpen(false);
-  };
-
-  const handleMoveButton = () => {
-    setIsMovePlayersModalOpen(true);
   };
 
   return (
@@ -66,63 +53,85 @@ const PlayerName: React.FC<PlayerName> = ({ playerId }) => {
       <IonItem className="player-name" lines="none">
         <IonTitle
           className="pointer align-center"
+          id={'player-name-' + playerId}
           color="light"
-          onClick={() => setIsEditPlayerOpen(true)}
         >
           {player?.name}
         </IonTitle>
-        <DealerIcon round={state.activeRound} playerId={playerId} />
+        <DealerIcon round={activeRound} playerId={playerId} />
       </IonItem>
-      <MovePlayersModal
-        isMovePlayersModalOpen={isMovePlayersModalOpen}
-        setIsMovePlayersModalOpen={setIsMovePlayersModalOpen}
-      />
+      <IonActionSheet
+        trigger={'player-name-' + playerId}
+        header={player.name}
+        className='popup-prompt'
+        buttons={[
+          {
+            text: 'Rename',
+            id: 'player-rename-' + playerId,
+            data: {
+              action: 'rename',
+            },
+          },
+          {
+            text: 'Move',
+            data: {
+              action: 'move',
+            },
+            handler: () => {
+              alertRef.current?.dismiss();
+              setIsMovePlayersOpen(true);
+            }
+          },
+          {
+            text: 'Delete',
+            id: 'player-delete-' + playerId,
+            role: 'destructive',
+            data: {
+              action: 'delete',
+            },
+          },
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            data: {
+              action: 'cancel',
+            },
+          },
+        ]}
+      ></IonActionSheet>
       <IonAlert
         ref={alertRef}
-        isOpen={isEditPlayerOpen}
-        key={trigger}
-        header="Edit Player"
+        trigger={'player-rename-' + playerId}
+        header="Rename Player"
         cssClass="popup-prompt"
+        key={version}
         inputs={[
           {
             name: 'playerName', // Key to access the input value
             type: 'text',
-            value: player.name,
+            value: player?.name,
             cssClass: 'alert-input',
           },
         ]}
         buttons={[
           {
+            text: 'Cancel',
+            role: 'cancel',
+          },
+          {
             text: 'OK',
             role: 'submit',
             handler: handleEditSubmit,
           },
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            handler: handleEditCancel,
-          },
-          {
-            text: 'Delete',
-            role: 'delete',
-            cssClass: 'warning-color',
-            handler: handleDeleteButton,
-          },
-          {
-            text: 'Move',
-            role: 'move',
-            handler: handleMoveButton,
-          },
         ]}
         onDidDismiss={() => {
-          setIsEditPlayerOpen(false);
+          setVersion(version => version + 1);
         }}
       />
-
       <IonAlert
         ref={alertRef}
-        isOpen={isDeletePlayerOpen}
-        header={'Delete Player ' + player.name}
+        trigger={'player-delete-' + playerId}
+        header={'Delete Player ' + player?.name}
         cssClass="popup-prompt"
         message="Are you sure you want to delete this player?"
         buttons={[
@@ -133,12 +142,12 @@ const PlayerName: React.FC<PlayerName> = ({ playerId }) => {
           {
             text: 'DELETE',
             role: 'delete',
-            handler: handleDeletePlayer,
+            handler: () => {
+              deletePlayer(player.id);
+              alertRef.current?.dismiss();
+            },
           },
         ]}
-        onDidDismiss={() => {
-          setIsDeletePlayerOpen(false);
-        }}
       />
     </>
   );

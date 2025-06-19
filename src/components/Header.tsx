@@ -9,10 +9,10 @@ import {
   IonToolbar,
 } from '@ionic/react';
 
-import { GameContextType, useGameContext } from './contexts/GameContext';
+import { useStore } from '../utils/state';
 
 const Header: React.FC = () => {
-  const { state } = useGameContext() as GameContextType;
+  const { activeRound } = useStore((state) => state);
 
   return (
     <IonHeader>
@@ -24,7 +24,7 @@ const Header: React.FC = () => {
             </IonCol>
             <IonCol className="align-center">
               <IonText className="round-value" color="light">
-                {state.activeRound}
+                {activeRound}
               </IonText>
             </IonCol>
             <IonCol size="1" />

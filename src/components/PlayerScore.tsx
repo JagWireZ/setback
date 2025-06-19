@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { IonItem, IonNote, IonLabel } from '@ionic/react';
 
-import { GameContextType, useGameContext } from './contexts/GameContext';
+import { useStore } from '../utils/state';
 import { Hand } from '../utils/game';
 
 interface PlayerScoreType {
@@ -9,9 +9,10 @@ interface PlayerScoreType {
 }
 
 const PlayerScore: React.FC<PlayerScoreType> = ({ playerId }) => {
-  const { state } = useGameContext() as GameContextType;
-  const [hands, setHands] = useState<Hand[]>(
-    state.hands?.filter((item) => item.playerId === playerId)
+  const { hands, options } = useStore((state) => state.game);
+  
+  const [playerHands, setPlayerHands] = useState<Hand[]>(
+    hands.filter((item) => item.playerId === playerId)
   );
 
   const [total, setTotal] = useState<number>(0);
@@ -19,8 +20,8 @@ const PlayerScore: React.FC<PlayerScoreType> = ({ playerId }) => {
 
   const getPlayerTotal = () => {
     let playerTotal = 0;
-    hands?.forEach((hand) => {
-      if (state.options.rounds.includes(hand.round)) {
+    playerHands.forEach((hand) => {
+      if (options.rounds.includes(hand.round)) {
         playerTotal = playerTotal + hand.total;
       }
     });
@@ -29,8 +30,8 @@ const PlayerScore: React.FC<PlayerScoreType> = ({ playerId }) => {
 
   const getPlayerPossible = () => {
     let playerPossible = 0;
-    hands?.forEach((hand) => {
-      if (state.options.rounds.includes(hand.round)) {
+    playerHands.forEach((hand) => {
+      if (options.rounds.includes(hand.round)) {
         playerPossible = playerPossible + hand.possible;
       }
     });
@@ -38,14 +39,14 @@ const PlayerScore: React.FC<PlayerScoreType> = ({ playerId }) => {
   };
 
   useEffect(() => {
-    setHands(state.hands?.filter((item) => item.playerId === playerId));
-  }, [playerId, state.hands]);
+    setPlayerHands(hands.filter((item) => item.playerId === playerId));
+  }, [playerId, hands]);
 
   useEffect(() => {
     setTotal(getPlayerTotal());
     setPossible(getPlayerPossible());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hands]);
+  }, [playerHands]);
 
   return (
     <IonItem className="player-score">

@@ -2,9 +2,9 @@ import { IonCol, IonRow } from '@ionic/react';
 
 import BookButton from './BookButton';
 import { Hand } from '../utils/game';
-import { GameContextType, useGameContext } from './contexts/GameContext';
 
 import { useEffect, useState, memo } from 'react';
+import { useStore } from '../utils/state';
 
 interface PlayerColumnType {
   playerId: string;
@@ -12,20 +12,20 @@ interface PlayerColumnType {
 }
 
 const PlayerColumn: React.FC<PlayerColumnType> = ({ playerId, round }) => {
-  const { state } = useGameContext() as GameContextType;
+  const { hands } = useStore((state) => state.game);
   const [hand, setHand] = useState<Hand>(
-    state.hands?.filter(
+    hands.filter(
       (item) => item.round === round && item.playerId === playerId
     )[0]
   );
 
   useEffect(() => {
     setHand(
-      state.hands.filter(
+      hands.filter(
         (item) => item.round === round && item.playerId === playerId
       )[0]
     );
-  }, [playerId, round, state.hands]);
+  }, [playerId, round, hands]);
 
   return (
     <IonCol

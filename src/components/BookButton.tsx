@@ -1,9 +1,9 @@
 import { IonSelect, IonSelectOption } from '@ionic/react';
 
-import { GameContextType, useGameContext } from './contexts/GameContext';
 import { Hand } from '../utils/game';
 
 import { memo, useEffect, useState } from 'react';
+import { useStore } from '../utils/state';
 
 interface BookButton {
   hand: Hand;
@@ -11,7 +11,8 @@ interface BookButton {
 }
 
 const BookButton: React.FC<BookButton> = ({ hand, action }) => {
-  const { state, editHand } = useGameContext() as GameContextType;
+  const { options } = useStore((state) => state.game);
+  const { editHand } = useStore((state) => state);
   const [isRainbow, setIsRainbow] = useState<boolean>(hand?.rainbow);
   const [cssRainbow, setCssRainbow] = useState<string>('');
 
@@ -19,6 +20,10 @@ const BookButton: React.FC<BookButton> = ({ hand, action }) => {
     const value = isRainbow === true ? 'rainbow' : '';
     setCssRainbow(value);
   }, [isRainbow]);
+
+  useEffect(() => {
+    setIsRainbow(hand.rainbow);
+  }, [hand])
 
   let selectOptions: React.ReactElement[] = [];
   selectOptions = selectOptions.concat([
@@ -34,7 +39,7 @@ const BookButton: React.FC<BookButton> = ({ hand, action }) => {
     if (
       action === 'bid' &&
       i === hand.max &&
-      state.options.tripRounds.includes(hand.round)
+      options.tripRounds.includes(hand.round)
     ) {
       selectOptions = selectOptions.concat([
         <IonSelectOption key={i + 'T'} value="T" color="light">
@@ -101,41 +106,41 @@ const BookButton: React.FC<BookButton> = ({ hand, action }) => {
   const getTotal = (data: Hand) => {
     let total = 0;
     // If the player tripped
-    if (state.options.tripRounds.includes(data.round) && data.trip == true) {
+    if (options.tripRounds.includes(data.round) && data.trip == true) {
       const wage =
         data.max *
-        state.options.scoring.book *
-        state.options.scoring.tripMultiplier;
+        options.scoring.book *
+        options.scoring.tripMultiplier;
       if (data.actual == data.max) {
         total = wage;
       } else {
         total = 0 - wage;
       }
     } else if (data.actual == data.bid) {
-      total = data.bid! * state.options.scoring.book;
+      total = data.bid! * options.scoring.book;
     } else if (data.actual! > data.bid!) {
       total =
-        data.bid! * state.options.scoring.book +
-        (data.actual! - data.bid!) * state.options.scoring.extra;
+        data.bid! * options.scoring.book +
+        (data.actual! - data.bid!) * options.scoring.extra;
     } else if (data.actual! < data.bid!) {
-      total = 0 - data.bid! * state.options.scoring.book;
+      total = 0 - data.bid! * options.scoring.book;
     }
     if (['4d', '4u'].includes(data.round) && data.rainbow == true) {
-      total = total + state.options.scoring.rainbow;
+      total = total + options.scoring.rainbow;
     }
     return total;
   };
 
   const getPossible = (data: Hand) => {
-    let possible = data.actual! * state.options.scoring.book;
+    let possible = data.actual! * options.scoring.book;
     if (
-      state.options.tripRounds.includes(data.round) &&
+      options.tripRounds.includes(data.round) &&
       data.actual == data.max
     ) {
-      possible = possible * state.options.scoring.tripMultiplier;
+      possible = possible * options.scoring.tripMultiplier;
     }
     if (['4d', '4u'].includes(data.round) && data.rainbow == true) {
-      possible = possible + state.options.scoring.rainbow;
+      possible = possible + options.scoring.rainbow;
     }
     return possible;
   };

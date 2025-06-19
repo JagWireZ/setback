@@ -2,7 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { idCard, idCardOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { memo, useEffect, useState } from 'react';
-import { GameContextType, useGameContext } from './contexts/GameContext';
+import { useStore } from '../utils/state';
 
 addIcons({ idCard });
 addIcons({ idCardOutline });
@@ -13,16 +13,16 @@ interface DealerIconType {
 }
 
 const DealerIcon: React.FC<DealerIconType> = ({ round, playerId }) => {
-  const { state, setDealer } = useGameContext() as GameContextType;
+  const { activeRound, dealerOrder, setDealerOrder } = useStore((state) => state);
   const [activeDealer, setActiveDealer] = useState(
-    state.dealerOrder.find((item) => item.round === round)?.playerId
+    dealerOrder.find((item) => item.round === round)?.playerId
   );
 
   useEffect(() => {
     setActiveDealer(
-      state.dealerOrder.find((item) => item.round === round)?.playerId
+      dealerOrder.find((item) => item.round === round)?.playerId
     );
-  }, [state.dealerOrder, state.activeRound, round]);
+  }, [dealerOrder, activeRound, round]);
 
   if (activeDealer === playerId) {
     return (
@@ -31,7 +31,7 @@ const DealerIcon: React.FC<DealerIconType> = ({ round, playerId }) => {
         slot="end"
         color="light"
         className="dealer-icon active"
-        onClick={() => setDealer(round, playerId)}
+        onClick={() => setDealerOrder(round, playerId)}
       />
     );
   } else {
@@ -42,7 +42,7 @@ const DealerIcon: React.FC<DealerIconType> = ({ round, playerId }) => {
         color="light"
         className="dealer-icon"
         style={{ opacity: 0.2 }}
-        onClick={() => setDealer(round, playerId)}
+        onClick={() => setDealerOrder(round, playerId)}
       />
     );
   }

@@ -1,26 +1,28 @@
 import { IonCol, IonRow } from '@ionic/react';
 
 import PlayerColumns from './PlayerColumns';
-import { GameContextType, useGameContext } from './contexts/GameContext';
 
 import { memo, useEffect, useState, ReactElement } from 'react';
+import { useStore } from '../utils/state';
 
 const RoundRows: React.FC = () => {
-  const { state, setActiveRound } = useGameContext() as GameContextType;
-  const [activeRow, setActiveRow] = useState(state.activeRound);
+  const { hands, options } = useStore((state) => state.game);
+  const { activeRound, setActiveRound } = useStore((state) => state);
+
+  const [activeRow, setActiveRow] = useState(activeRound);
 
   useEffect(() => {
-    setActiveRow(state.activeRound);
-  }, [state.activeRound]);
+    setActiveRow(activeRound);
+  }, [activeRound]);
 
   useEffect(() => {
     setActiveRound(findActiveRound());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.hands]);
+  }, [hands]);
 
   const findActiveRound = () => {
-    const roundList = state.options.rounds;
-    const tempHands = state.hands.filter((hand) =>
+    const roundList = options.rounds;
+    const tempHands = hands.filter((hand) =>
       roundList.includes(hand.round)
     );
     tempHands.sort(
@@ -29,12 +31,12 @@ const RoundRows: React.FC = () => {
     const nullHand = tempHands.find(
       (hand) => hand.bid === null || hand.actual === null
     );
-    const result = nullHand === undefined ? state.activeRound : nullHand.round;
+    const result = nullHand === undefined ? activeRound : nullHand.round;
     return result;
   };
 
   let rows: ReactElement[] = [];
-  state.options.rounds.map((round: string) => {
+  options.rounds.map((round: string) => {
     const active = activeRow === round ? 'active' : '';
     const cardCount = Number(round.match(/\d+/)![0]);
     const numberClass = cardCount % 2 == 0 ? 'even' : 'odd';

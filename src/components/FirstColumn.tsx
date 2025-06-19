@@ -1,11 +1,10 @@
 import { IonCol, IonRow } from '@ionic/react';
 
-import { GameContextType, useGameContext } from './contexts/GameContext';
-
 import { memo, ReactElement } from 'react';
+import { useStore } from '../utils/state';
 
 const FirstColumn: React.FC = () => {
-  const { state } = useGameContext() as GameContextType;
+  const { options } = useStore((state) => state.game);
 
   let rows: ReactElement[] = [];
   rows = rows.concat([
@@ -14,7 +13,7 @@ const FirstColumn: React.FC = () => {
     </IonRow>,
   ]);
 
-  state.options.rounds.map((round: string) => {
+  options.rounds.map((round: string) => {
     const cardCount = Number(round.match(/\d+/)![0]);
     const numberClass = cardCount % 2 == 0 ? 'even' : 'odd';
     rows = rows.concat([

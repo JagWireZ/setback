@@ -90,25 +90,11 @@ export class Game {
   options: Options;
   players: Player[];
   hands: Hand[];
-  activeRound: string;
-  dealerOrder: { round: string; playerId: string }[] | [];
-  session: {
-    modalState: {
-      movePlayersModal: boolean;
-    };
-  };
 
   constructor() {
     this.players = [];
     this.hands = [];
     this.options = new Options();
-    this.activeRound = this.options.fullRounds[0];
-    this.dealerOrder = [];
-    this.session = {
-      modalState: {
-        movePlayersModal: false,
-      },
-    };
   }
 }
 

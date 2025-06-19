@@ -1,106 +1,106 @@
-import { Game, Hand, Options, Player, createHands, createPlayer } from './game';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-export const initialState: Game = new Game();
+import { Game, Hand, Options, Player } from './game';
 
-export type GameAction =
-  | { type: 'ADD_PLAYER'; payload: { name: string } }
-  | { type: 'CLEAR_SCORES' }
-  | { type: 'DELETE_PLAYER'; payload: { playerId: string } }
-  | { type: 'EDIT_GAME'; payload: { game: Game } }
-  | { type: 'EDIT_HAND'; payload: { hand: Hand } }
-  | { type: 'EDIT_OPTIONS'; payload: { options: Options } }
-  | { type: 'EDIT_PLAYER'; payload: { player: Player } }
-  | { type: 'INIT_HANDS'; payload: { playerId: string } }
-  | { type: 'NEW_GAME' }
-  | { type: 'SET_ACTIVE_ROUND'; payload: { round: string } }
-  | {
-      type: 'SET_DEALER_ORDER';
-      payload: { dealerOrder: { round: string; playerId: string }[] };
-    };
+type GameStore = {
+  game: Game;
+  activeRound: string;
+  dealerOrder: { round: string, playerId: string }[];
+  addPlayer: ( name: string ) => void;
+  deletePlayer: ( playerId: string ) => void;
+  editGame: ( game: Game ) => void;
+  editHand: ( hand: Hand ) => void;
+  editOptions: ( options: Options ) => void;
+  editPlayer: ( player: Player ) => void;
+  newGame: () => void;
+  setActiveRound: ( round: string ) => void;
+  setDealerOrder: ( round: string, playerId: string ) => void;
+}
 
-const gameReducer = (state: Game, action: GameAction) => {
-  switch (action.type) {
-    case 'ADD_PLAYER': {
-      const name: string = action.payload.name;
-      const newPlayer = createPlayer(name);
-
-      return {
-        ...state,
-        players: [...state.players, newPlayer.player],
-        hands: state.hands.concat(newPlayer.hands),
-      };
-    }
-    case 'CLEAR_SCORES': {
-      const newHands: Hand[] = [];
-      state.players.map((player) => {
-        const playerHands = createHands(player.id);
-        newHands.push(...playerHands);
-      });
-
-      return {
-        ...state,
-        hands: newHands,
-      };
-    }
-    case 'DELETE_PLAYER': {
-      const playerId: string = action.payload.playerId;
-
-      return {
-        ...state,
-        players: state.players.filter((player) => player.id != playerId),
-        hands: state.hands.filter((hand) => hand.playerId != playerId),
-      };
-    }
-    case 'EDIT_GAME': {
-      return action.payload.game;
-    }
-    case 'EDIT_HAND': {
-      return {
-        ...state,
-        hands: state.hands.map((hand) => {
-          if (hand.id === action.payload.hand.id) {
-            return action.payload.hand;
+export const useStore = create<GameStore>()(
+  persist(
+    (set, get) => ({
+      game: new Game(),
+      activeRound: '10d',
+      dealerOrder: [],
+      addPlayer: ( name: string ) => {
+        const game = get().game;
+        const player = new Player(name);
+        const hands = game.options.fullRounds.map( round => new Hand(round, player.id));
+        set({ game: { 
+          ...game,
+          players: [...game.players, player],
+          hands: [...game.hands, ...hands]
+        }})
+      },
+      deletePlayer: ( playerId: string ) => {
+        const game = get().game;
+        set({ game: {
+          ...game,
+          players: game.players.filter( player => player.id !== playerId),
+          hands: game.hands.filter( hand => hand.playerId !== playerId),
+        }})
+      },
+      editGame: ( game: Game ) => set({ game: game }),
+      editHand: ( data: Hand ) => {
+        const game = get().game;
+        const hands = game.hands.map( (hand) => {
+          if ( hand.round === data.round && hand.playerId === data.playerId) {
+            return data;
           } else {
             return hand;
           }
-        }),
-      };
-    }
-    case 'EDIT_OPTIONS': {
-      return {
-        ...state,
-        options: action.payload.options,
-      };
-    }
-    case 'EDIT_PLAYER': {
-      return {
-        ...state,
-        players: state.players.map((player: Player) => {
-          return player.id === action.payload.player.id
-            ? action.payload.player
-            : player;
-        }),
-      };
-    }
-    case 'NEW_GAME': {
-      return initialState;
-    }
-    case 'SET_ACTIVE_ROUND': {
-      return {
-        ...state,
-        activeRound: action.payload.round,
-      };
-    }
-    case 'SET_DEALER_ORDER': {
-      return {
-        ...state,
-        dealerOrder: action.payload.dealerOrder,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
-
-export default gameReducer;
+        })
+        set({ game: { ...game, hands: hands } });
+      },
+      editOptions: ( options: Options ) => {
+        const game = get().game;
+        set({ game: { ...game, options: options }});
+      },
+      editPlayer: ( player: Player ) => {
+        const game = get().game;
+        const players = game.players.map( p => {
+          if ( p.id === player.id ) {
+            return player;
+          } else {
+            return p
+          }
+        });
+        set({ game: { ...game, players: players }});
+      },
+      newGame: () => set({ game: new Game() }),
+      setActiveRound: ( round: string ) => set({ activeRound: round }),
+      setDealerOrder: ( round: string, playerId: string ) => {
+        const game = get().game;
+        const totalRounds = game.options.fullRounds.length;
+        const selectedRoundIndex = game.options.fullRounds.indexOf(round);
+        const selectedPlayerIndex = game.players
+          .map((item) => item.id)
+          .indexOf(playerId);
+    
+        // Get dealer for the given round
+        function getDealer(roundIndex: number) {
+          const offset =
+            (selectedPlayerIndex - selectedRoundIndex) % game.players.length;
+          const dealerIndex =
+            (roundIndex + offset + game.players.length) % game.players.length;
+          return game.players[dealerIndex].id;
+        }
+    
+        // Output dealer and round details
+        const dealerOrder = [];
+        for (let i = 0; i < totalRounds; i++) {
+          dealerOrder.push({
+            round: game.options.fullRounds[i],
+            playerId: getDealer(i),
+          });
+        }
+        set({ dealerOrder: dealerOrder })
+      }
+    }),
+    {
+      name: 'game',
+    },
+  ),
+)

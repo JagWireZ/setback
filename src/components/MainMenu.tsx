@@ -1,4 +1,4 @@
-import { useRef, useState, memo } from 'react';
+import { useRef, memo, useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -24,8 +24,9 @@ const MainMenu: React.FC = () => {
 
   const menuRef = useRef<HTMLIonMenuElement>(null);
 
-  const closeMenu = () => {
+  const handleNewGameModal = () => {
     void menuRef.current?.setOpen(false);
+    setIsNewGameModalOpen(true);
   };
 
   return (
@@ -43,7 +44,7 @@ const MainMenu: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding" color="light">
         <IonList>
-          <IonItem color="light" button={true} id="open-new-game">
+          <IonItem color="light" button={true} onClick={handleNewGameModal}>
             <IonIcon
               color="tertiary"
               slot="start"
@@ -51,7 +52,6 @@ const MainMenu: React.FC = () => {
             ></IonIcon>
             <IonLabel color="tertiary">New Game</IonLabel>
             <NewGameModal
-              closeMenu={closeMenu}
               isNewGameModalOpen={isNewGameModalOpen}
               setIsNewGameModalOpen={setIsNewGameModalOpen}
             />

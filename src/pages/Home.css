@@ -302,6 +302,13 @@ ion-popover::part(content) {
   padding: 0 10px;
 }
 
+.popup-prompt .action-sheet-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
 .popup-prompt .action-sheet-group {
   min-width: 200px;
   max-width: 50%;

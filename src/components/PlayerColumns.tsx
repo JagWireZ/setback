@@ -1,18 +1,17 @@
 import { memo } from 'react';
 
 import PlayerColumn from './PlayerColumn';
-
-import { GameContextType, useGameContext } from './contexts/GameContext';
 import { Player } from '../utils/game';
+import { useStore } from '../utils/state';
 
 interface PlayerColumns {
   round: string;
 }
 
 const PlayerColumns: React.FC<PlayerColumns> = ({ round }) => {
-  const { state } = useGameContext() as GameContextType;
+  const { players } = useStore((state) => state.game);
 
-  return state.players.map((player: Player, index) => {
+  return players.map((player: Player, index) => {
     return <PlayerColumn playerId={player.id} round={round} key={index} />;
   });
 };

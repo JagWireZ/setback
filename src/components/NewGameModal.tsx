@@ -24,50 +24,48 @@ import {
   IonSelectCustomEvent,
   SelectChangeEventDetail,
 } from '@ionic/core';
-import { Game } from '../utils/game';
-import { createHands } from '../utils/game';
-import { GameContextType, useGameContext } from './contexts/GameContext';
+import { useStore } from '../utils/state';
+import { Game, Hand } from '../utils/game';
 import { close } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 addIcons({ close });
 
 interface NewGameModalType {
-  closeMenu: () => void;
   isNewGameModalOpen: boolean;
   setIsNewGameModalOpen: (value: boolean) => void;
 }
 
 const NewGameModal: React.FC<NewGameModalType> = ({
-  closeMenu,
-  setIsNewGameModalOpen,
+  isNewGameModalOpen,
+  setIsNewGameModalOpen
 }) => {
-  const { state, editGame } = useGameContext() as GameContextType;
+  const { game, editGame } = useStore(state => state);
 
   const [removePlayers, setRemovePlayers] = useState(false);
-  const [cardCount, setCardCount] = useState(state.options.maxCards);
-  const [tripRounds, setTripRounds] = useState(state.options.tripRounds);
-  const [bookPoints, setBookPoints] = useState(state.options.scoring.book);
-  const [extraPoints, setExtraPoints] = useState(state.options.scoring.extra);
+  const [cardCount, setCardCount] = useState(game.options.maxCards);
+  const [tripRounds, setTripRounds] = useState(game.options.tripRounds);
+  const [bookPoints, setBookPoints] = useState(game.options.scoring.book);
+  const [extraPoints, setExtraPoints] = useState(game.options.scoring.extra);
   const [rainbowPoints, setRainbowPoints] = useState(
-    state.options.scoring.rainbow
+    game.options.scoring.rainbow
   );
   const [tripMultipler, setTripMultipler] = useState(
-    state.options.scoring.tripMultiplier
+    game.options.scoring.tripMultiplier
   );
   const [roundCount, setRoundCount] = useState(
-    state.options.fullRounds.filter(
+    game.options.fullRounds.filter(
       (round) => Number(round.match(/\d+/)![0]) <= cardCount
     )
   );
 
   useEffect(() => {
     setRoundCount(
-      state.options.fullRounds.filter(
+      game.options.fullRounds.filter(
         (round) => Number(round.match(/\d+/)![0]) <= cardCount
       )
     );
-  }, [cardCount, state.options.fullRounds]);
+  }, [cardCount, game.options.fullRounds]);
 
   const modal = useRef<HTMLIonModalElement>(null);
   const input = useRef<HTMLIonInputElement>(null);
@@ -78,7 +76,6 @@ const NewGameModal: React.FC<NewGameModalType> = ({
 
   function onDidDismiss() {
     setIsNewGameModalOpen(false);
-    closeMenu();
   }
 
   const handleResetToDefault = () => {
@@ -96,17 +93,18 @@ const NewGameModal: React.FC<NewGameModalType> = ({
   ) {
     if (event.detail.role === 'confirm') {
       const newGame = new Game();
-      newGame.players = removePlayers === true ? [] : state.players;
+      newGame.players = removePlayers === true ? [] : game.players;
       if (removePlayers === false) {
         newGame.players.map((player) => {
-          const newHands = createHands(player.id);
-          newGame.hands = [...newGame.hands, ...newHands];
+          game.options.fullRounds.map( round => {
+            newGame.hands = [...newGame.hands, new Hand(round, player.id)]
+          });
         });
       }
       newGame.options = {
         ...newGame.options,
         maxCards: cardCount,
-        rounds: state.options.fullRounds.filter((round) => {
+        rounds: game.options.fullRounds.filter((round) => {
           if (Number(round.match(/\d+/)![0]) <= cardCount) {
             return round;
           }
@@ -134,7 +132,7 @@ const NewGameModal: React.FC<NewGameModalType> = ({
     <IonModal
       className="popup-prompt"
       ref={modal}
-      trigger="open-new-game"
+      isOpen={isNewGameModalOpen}
       onDidDismiss={() => onDidDismiss()}
       onWillDismiss={(
         event: IonModalCustomEvent<OverlayEventDetail<{ role: string }>>
