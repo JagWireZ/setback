@@ -18,6 +18,7 @@ const PlayerColumn: React.FC<PlayerColumnType> = ({ playerId, round }) => {
       (item) => item.round === round && item.playerId === playerId
     )[0]
   );
+  const [isTotalValid, setIsTotalValid] = useState<''|'invalid'>('');
 
   useEffect(() => {
     setHand(
@@ -25,6 +26,21 @@ const PlayerColumn: React.FC<PlayerColumnType> = ({ playerId, round }) => {
         (item) => item.round === round && item.playerId === playerId
       )[0]
     );
+
+    const roundHands = hands.filter(hand => hand.round === round);
+    const bids = roundHands.map(hand => hand.bid);
+    const actuals = roundHands.map(hand => hand.actual);
+    if (!bids.includes(null) && !actuals.includes(null)) {
+      const max = Number(round.match(/\d+/)![0]);
+      const sum = actuals.reduce((total, num) => Number(total) + Number(num), 0);
+      if ( sum !== max ) {
+        setIsTotalValid('invalid');
+      } else {
+        setIsTotalValid('');
+      }
+    } else {
+      setIsTotalValid('');
+    }
   }, [playerId, round, hands]);
 
   return (
@@ -37,7 +53,7 @@ const PlayerColumn: React.FC<PlayerColumnType> = ({ playerId, round }) => {
         <IonCol>
           <BookButton hand={hand} action="bid" />
         </IonCol>
-        <IonCol>
+        <IonCol className={isTotalValid}>
           <BookButton hand={hand} action="got" />
         </IonCol>
       </IonRow>

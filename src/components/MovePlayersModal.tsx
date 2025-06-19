@@ -26,7 +26,7 @@ const MovePlayersModal: React.FC<MovePlayersModalType> = ({
   isMovePlayersOpen,
   setIsMovePlayersOpen
 }) => {
-  const { game, editGame } = useStore((state) => state);
+  const { game, dealerOrder, editGame, setDealerOrder } = useStore((state) => state);
   const modalRef = useRef<HTMLIonModalElement>(null);
 
   const handleReorder = useCallback((event: CustomEvent<ItemReorderEventDetail>) => {
@@ -35,7 +35,12 @@ const MovePlayersModal: React.FC<MovePlayersModalType> = ({
     const [movedPlayer] = updatedPlayers.splice(event.detail.from, 1);
     updatedPlayers.splice(event.detail.to, 0, movedPlayer);
     editGame({ ...game, players: updatedPlayers });
-  }, [game, editGame]);
+
+    const startingDealer = dealerOrder.find(item => item.round === '10d');
+    if ( startingDealer !== undefined ) {
+      setDealerOrder(startingDealer.round, startingDealer.playerId);
+    }
+  }, [game, editGame, dealerOrder, setDealerOrder]);
 
   return (
     <IonModal

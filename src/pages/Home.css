@@ -219,6 +219,10 @@ ion-select.book-button::part(icon) {
   display: none;
 }
 
+ion-col.invalid ion-select::part(text) {
+  color: #FF5555;
+}
+
 ion-select.bid::part(text) {
   font-size: 1.1em;
 }

@@ -15,6 +15,7 @@ type GameStore = {
   editPlayer: ( player: Player ) => void;
   newGame: () => void;
   setActiveRound: ( round: string ) => void;
+  resetDealerOrder: () => void;
   setDealerOrder: ( round: string, playerId: string ) => void;
 }
 
@@ -40,7 +41,7 @@ export const useStore = create<GameStore>()(
           ...game,
           players: game.players.filter( player => player.id !== playerId),
           hands: game.hands.filter( hand => hand.playerId !== playerId),
-        }})
+        }});
       },
       editGame: ( game: Game ) => set({ game: game }),
       editHand: ( data: Hand ) => {
@@ -71,6 +72,7 @@ export const useStore = create<GameStore>()(
       },
       newGame: () => set({ game: new Game() }),
       setActiveRound: ( round: string ) => set({ activeRound: round }),
+      resetDealerOrder: () => set({ dealerOrder: [] }),
       setDealerOrder: ( round: string, playerId: string ) => {
         const game = get().game;
         const totalRounds = game.options.fullRounds.length;
